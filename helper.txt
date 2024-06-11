@@ -1,0 +1,82 @@
+Telepítés cmd-ből:
+	1. docker create-project laravel/laravel .
+		a. ez létrehoz egy projektet, amit a gyökérkönyvtárba tesz
+	2. php artisan serve
+		a. localhost-on futtatja a szervert
+		b. először egy laraveles felület jön be --> át kell írni a routes-ban arra a view-ra amit mi szeretnénk megnyitni alapértelmezetten 
+	3. Össze kell kötni a form-ot a register function-nal
+		a. A form-okhoz mindig kell a @csrf token-es rész!!!!!!!!!!
+	4. Összekötés a phpmyadmin adatbázissal:
+		a. Beállítjuk az adatbázis nevét a .env file-ban
+		b. Php artisan migrate --> a migrations mappában található kódot futtatja, létrehozza a táblákat az adatbázisban (alapból pl user van mindig)
+	5. CRUD készítés, mind controllerben, mind web.php-ban mind a html file-ban
+		a. A gombokra tesszük a funkciókat, szükség van a @method megadására is (@method(delete), @method('put'), @method('get'), ha nem post kell mert az az alapértelmezett)
+
+
+	6. Factory, seeder készítése
+		a. php artisan make:factory PostFactory
+			i. megírjuk a UserFactory alapján
+		b. php artisan make:seed PostSeeder
+			i. a DatabaseSeeder-be fel kell venni a PostSeeder-t
+$this->call(PostSeeder::class)
+
+
+két adatbázis használata egyszerre:
+return [
+
+    // ...
+
+    'connections' => [
+
+        'mysql' => [
+            'driver' => 'mysql',
+            'host' => env('DB_HOST', '127.0.0.1'),
+            'port' => env('DB_PORT', '3306'),
+            'database' => env('DB_DATABASE', 'forge'),
+            'username' => env('DB_USERNAME', 'forge'),
+            'password' => env('DB_PASSWORD', ''),
+            'unix_socket' => env('DB_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
+        'mysql2' => [
+            'driver' => 'mysql',
+            'host' => env('DB_SECOND_HOST', '127.0.0.1'),
+            'port' => env('DB_SECOND_PORT', '3306'),
+            'database' => env('DB_SECOND_DATABASE', 'forge'),
+            'username' => env('DB_SECOND_USERNAME', 'forge'),
+            'password' => env('DB_SECOND_PASSWORD', ''),
+            'unix_socket' => env('DB_SECOND_SOCKET', ''),
+            'charset' => 'utf8mb4',
+            'collation' => 'utf8mb4_unicode_ci',
+            'prefix' => '',
+            'strict' => true,
+            'engine' => null,
+        ],
+
+    ],
+
+    // ...
+
+];
+
+Új modelt kell létrehozni, ahol így adjuk meg a másik adatbázist:
+namespace App\Models;
+
+use Illuminate\Database\Eloquent\Model;
+
+class Product extends Model
+{
+    // Használja a 'mysql2' adatbázis kapcsolatot
+    protected $connection = 'mysql2';
+}
+Lekérdezés:
+use App\Models\User;
+use App\Models\Product;
+
+$users = User::all(); // Az alapértelmezett adatbázisból lekért adatok
+$products = Product::all(); // A második adatbázisból lekért adatok
